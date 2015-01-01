@@ -5,6 +5,7 @@ TYPE_POSITION    = 4
 TYPE_EOF         = 5
 TYPE_UNKNOWN     = 6
 TYPE_UNKNOWN_CSI = 7
+TYPE_MOUSE       = 8
 
 # Must be these exact values for CSI parsing to work
 MOD_NONE  = 0

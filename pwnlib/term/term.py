@@ -66,20 +66,24 @@ def setupterm():
     ISPEED = 4
     OSPEED = 5
     CC = 6
-    mode[IFLAG] = mode[IFLAG] & ~(termios.BRKINT | termios.ICRNL | termios.INPCK | termios.ISTRIP | termios.IXON)
-    mode[OFLAG] = mode[OFLAG] & ~(termios.OPOST)
-    mode[CFLAG] = mode[CFLAG] & ~(termios.CSIZE | termios.PARENB)
-    mode[CFLAG] = mode[CFLAG] | termios.CS8
-    mode[LFLAG] = mode[LFLAG] & ~(termios.ECHO | termios.ICANON | termios.IEXTEN)
+    # mode[IFLAG] = mode[IFLAG] & ~(termios.BRKINT | termios.ICRNL | termios.INPCK | termios.ISTRIP | termios.IXON)
+    mode[IFLAG] = mode[IFLAG] & ~(termios.INLCR | termios.ICRNL | termios.IXON)
+    # mode[OFLAG] = mode[OFLAG] & ~(termios.OPOST)
+    # mode[CFLAG] = mode[CFLAG] & ~(termios.CSIZE | termios.PARENB)
+    # mode[CFLAG] = mode[CFLAG] | termios.CS8
+    # mode[LFLAG] = mode[LFLAG] & ~(termios.ECHO | termios.ICANON | termios.IEXTEN)
+    mode[LFLAG] = mode[LFLAG] & ~(termios.ECHO | termios.ICANON)
     mode[CC][termios.VMIN] = 1
     mode[CC][termios.VTIME] = 0
-    termios.tcsetattr(fd, termios.TCSAFLUSH, mode)
+    # termios.tcsetattr(fd, termios.TCSAFLUSH, mode)
+    termios.tcsetattr(fd, termios.TCSANOW, mode)
 
 def resetterm():
     if settings:
         termios.tcsetattr(fd.fileno(), termios.TCSADRAIN, settings)
     show_cursor()
     do('rmkx')
+    put('\x1b[?1000l')
     fd.write(' \x08') # XXX: i don't know why this is needed...
                       #      only necessary when suspending the process
 
@@ -89,6 +93,8 @@ def init():
     signal.signal(signal.SIGWINCH, handler_sigwinch)
     signal.signal(signal.SIGTSTP, handler_sigstop)
     signal.signal(signal.SIGCONT, handler_sigcont)
+    # mouse mode
+    put('\x1b[?1000h')
     # we start with one empty cell at the current cursor position
     put('\x1b[6n')
     s = ''

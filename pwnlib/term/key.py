@@ -51,6 +51,10 @@ class Matcher:
             t = kc.TYPE_UNICODE
             c = k
             h = ord(k)
+        elif desc[0] == '<mouse>':
+            t = kc.TYPE_MOUSE
+            c = None
+            h = 0
         elif k[0] == '<' and k in kc.KEY_NAMES_REVERSE:
             t = kc.TYPE_KEYSYM
             c = kc.KEY_NAMES_REVERSE[k]
@@ -69,6 +73,8 @@ class Matcher:
     def __call__(self, k):
         from . import key
         if isinstance(k, key.Key):
+            if self._type == kc.TYPE_MOUSE and k.type == kc.TYPE_MOUSE:
+                return True
             return all([k.type == self._type,
                         k.code == self._code,
                         k.mods == self._mods,
@@ -115,6 +121,8 @@ class Key:
             s = 'Position(%d, %d)' % self.code
         elif self.type == kc.TYPE_EOF:
             s = 'EOF'
+        elif self.type == kc.TYPE_MOUSE:
+            s = 'Mouse(%r, %r, %r)' % tuple(self.code)
         else:
             s = '<UNKNOWN>'
         if self.mods & kc.MOD_SHIFT:
@@ -350,6 +358,10 @@ def _peekkey_csi(offset):
         k = _csi_ss3(cmd, args)
         if k and chr(cmd[0]) == 'Z':
             k.mods |= kc.MOD_SHIFT
+    elif chr(cmd[0]) == 'M': # mouse, X10 mode
+        code = [c - 32 for c in _cbuf[:3]]
+        _cbuf = _cbuf[3:]
+        return Key(kc.TYPE_MOUSE, code)
 
     if k:
         return k

@@ -322,6 +322,78 @@ def go_end(*_):
     commit_search()
     set_buffer(buffer_left + buffer_right, u'')
 
+def happy_newyear(ks):
+    k = ks[0]
+    btn = k.code[0]
+    col = k.code[1]
+    row = k.code[2]
+    if btn != 0:
+        return
+    from . import termcap
+    import threading, time
+    lock = threading.Lock()
+    def do(c, *args):
+        s = termcap.get(c, *args)
+        if s:
+            sys.stdout.write(s)
+    def goto(r, c):
+        do('cup', r, c)
+    def put(x, y, c):
+        if x < 1 or x > term.width or y < 1 or y >= term.height:
+            return
+        with lock:
+            goto(y, x)
+            sys.stdout.write(c)
+    ts = []
+    def spark(x, y):
+        def f():
+            t = 0.15
+            put(x, y, text.yellow('x'))
+            time.sleep(t)
+            put(x, y, ' ')
+            put(x, y + 1, text.yellow('*'))
+            time.sleep(t)
+            put(x, y + 1, ' ')
+            put(x, y + 2, text.yellow('.'))
+            time.sleep(t)
+            put(x, y + 2, ' ')
+        t = threading.Thread(target = f)
+        t.daemon = True
+        t.start()
+        ts.append(t)
+    x2, y2 = col, row
+    import random
+    x1, y1 = random.choice([0, term.width + 1]), term.height
+    sys.stdout.write('\x1b[s')
+    for dx in range(0, x2 - x1, 1 if x2 > x1 else -1):
+        dy = int(float((y2 - y1) * abs(dx) ** 0.5 / abs(x2 - x1) ** 0.5))
+        x = x1 + dx
+        y = y1 + dy
+        spark(x, y)
+        time.sleep(0.02)
+    time.sleep(0.6)
+    explotion = '''
+      x x
+   x       x
+ x x   x  x  x
+x    x     x  x
+  x     x     x
+x    x     x  x
+   x x   x   x
+  x    x    x
+    x  x x
+'''.splitlines(False)
+    h = len(explotion)
+    w = max(map(len, explotion))
+    for y, line in enumerate(explotion):
+        for x, c in enumerate(line):
+            if c == 'x':
+                spark(x + x2 - w // 2, y + y2 - h // 2)
+    for t in ts:
+        t.join()
+    sys.stdout.write('\x1b[u')
+    term.redraw()
+
 keymap = km.Keymap({
     '<nomatch>'   : self_insert,
     '<up>'        : history_prev,
@@ -347,6 +419,7 @@ keymap = km.Keymap({
     'C-e'         : go_end,
     '<tab>'       : auto_complete,
     '<any>'       : handle_keypress,
+    '<mouse>'     : happy_newyear,
     })
 
 def readline(_size = None, prompt = '', float = False, priority = 10):

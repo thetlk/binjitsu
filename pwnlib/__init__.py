@@ -1,6 +1,4 @@
 import importlib
-from .version import __version__
-version = __version__
 
 __all__ = [
     'asm',
@@ -23,7 +21,8 @@ __all__ = [
     'tubes',
     'ui',
     'useragents',
-    'util'
+    'util',
+    'version'
 ]
 
 for module in __all__:

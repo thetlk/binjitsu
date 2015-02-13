@@ -87,6 +87,10 @@ class process(tube):
         >>> p.poll()
         0
 
+        >>> p = process(['strace', '-e', 'dup2,execve', 'python', '-c' 'import os; print os.read(2, 5)'], stderr=sys.stdin)
+        >>> p.send("Hello")
+        >>> p.recv()
+
         >>> p = process('cat /dev/zero | head -c8', shell=True, stderr=open('/dev/null', 'w+'))
         >>> p.recv()
         '\x00\x00\x00\x00\x00\x00\x00\x00'
@@ -143,6 +147,7 @@ class process(tube):
             if self.env  != os.environ:        message += ' env=%r ' % self.env
 
         with self.progress(message) as p:
+            print stdin, stdout, stderr
             self.proc = subprocess.Popen(args = argv,
                                          shell = shell,
                                          executable = executable,
@@ -157,6 +162,16 @@ class process(tube):
         if master:
             self.proc.stdout = os.fdopen(master)
             os.close(stdout)
+
+        # If the user specified file descriptor numbers for any of
+        # the standard file handles, the call to subprocess.Popen
+        # will leave them set to those values.
+        if not isinstance(self.proc.stdin, file):
+            self.proc.stdin = os.fdopen(self.proc.stdin)
+        if not isinstance(self.proc.stdout, file):
+            self.proc.stdout = os.fdopen(self.proc.stdout)
+        if not isinstance(self.proc.stderr, file):
+            self.proc.stderr = os.fdopen(self.proc.stderr)
 
         # Set in non-blocking mode so that a call to call recv(1000) will
         # return as soon as a the first byte is available

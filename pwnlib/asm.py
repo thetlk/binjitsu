@@ -303,7 +303,7 @@ def _run(cmd, stdin = None):
             msg += 'It had the exitcode %d.\n' % exitcode
         if stderr != '':
             msg += 'It had this on stdout:\n%s\n' % stderr
-        log.error(msg)
+        log.warning(msg)
 
     return stdout
 

@@ -99,9 +99,12 @@ def which_binutils(util, **kwargs):
         # architecture, use that as a last resort.
         machine = platform.machine()
         try:
+            print (context.arch, context.bits, context)
             with context.local(arch = machine):
+                print (context.arch, context.bits, context)
                 if context.arch in arches:
                     arches.append(None)
+            print (context.arch, context.bits, context)
         except AttributeError:
             log.warn_once("Your local binutils won't be used because architecture %r is not supported." % machine)
 

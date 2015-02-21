@@ -477,6 +477,16 @@ class ContextType(object):
             3.0
             >>> print context.timeout
             1.0
+
+
+            >>> context.clear()
+            >>> print (context.arch, context.bits)
+            ('i386', 32)
+            >>> with context.local(arch='amd64'):
+            ...     print (context.arch, context.bits)
+            ('amd64', 64)
+            >>> print (context.arch, context.bits)
+            ('i386', 32)
         """
         class LocalContext(object):
             def __enter__(a):

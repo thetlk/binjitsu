@@ -373,7 +373,8 @@ def make_elf(data, vma = None, strip=True, **kwargs):
         >>> context.bits = 32
         >>> filename = tempfile.mktemp()
         >>> bin_sh = '6a68682f2f2f73682f62696e89e331c96a0b5899cd80'.decode('hex')
-        >>> data = make_elf(bin_sh)
+        >>> with context.local(log_level='debug'):
+        ...     data = make_elf(bin_sh)
         >>> with open(filename,'wb+') as f:
         ...     f.write(data)
         ...     f.flush()
@@ -442,6 +443,7 @@ def asm(shellcode, vma = 0, **kwargs):
 
         .. doctest::
 
+            >>> context.clear()
             >>> asm("mov eax, SYS_select", arch = 'i386', os = 'freebsd')
             '\xb8]\x00\x00\x00'
             >>> asm("mov eax, SYS_select", arch = 'amd64', os = 'linux')

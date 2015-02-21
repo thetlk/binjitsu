@@ -420,7 +420,7 @@ def make_elf(data, vma = None, strip=True, **kwargs):
             with open(step3, 'r') as f:
                 return f.read()
         except Exception:
-            log.exception("An error occurred while building an ELF:\n%s" % code)
+            log.warning("An error occurred while building an ELF:\n%s" % code)
         else:
             shutil.rmtree(tmpdir)
 

@@ -407,7 +407,7 @@ def make_elf(data, vma = None, strip=True, **kwargs):
             if vma is not None:
                 load_addr = ['-Ttext-segment=%#x' % vma]
 
-            _run(linker    + load_addr + ['-o', step3, step2])
+            _run(linker    + load_addr + ['-N', '-o', step3, step2])
 
             if strip:
                 _run([which_binutils('objcopy'), '-Sg', step3])

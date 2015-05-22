@@ -7,6 +7,7 @@ import stat
 import string
 
 from . import lists
+from ..context import context
 from ..log import getLogger
 
 log = getLogger(__name__)
@@ -159,10 +160,13 @@ def run_in_new_terminal(command, terminal = None, args = None):
 
     Run a command in a new terminal.
 
-    If X11 is detected, the terminal will be launched with
-    ``x-terminal-emulator``.
-
-    If X11 is not detected, a new tmux pane is opened if possible.
+    When `terminal` is not set:
+      - If `context.terminal` is set it will be used.  If it is an iterable then
+        `context.terminal[1:]` are default arguments.
+      - If X11 is detected (by the presence of the ``DISPLAY`` environment
+        variable), ``x-terminal-emulator`` is used.
+      - If tmux is detected (by the presence of the ``TMUX`` environment
+        variable), a new pane will be opened.
 
     Arguments:
       command (str): The command to run.
@@ -171,21 +175,29 @@ def run_in_new_terminal(command, terminal = None, args = None):
 
     Returns:
       None
+
     """
 
     if not terminal:
-        if 'XAUTHORITY' in os.environ:
+        if context.terminal:
+            terminal = context.terminal[0]
+            args     = context.terminal[1:]
+        elif 'DISPLAY' in os.environ:
             terminal = 'x-terminal-emulator'
             args     = ['-e']
-
         elif 'TMUX' in os.environ:
             terminal = 'tmux'
             args     = ['splitw']
 
-        else:
-            log.error("Can't open new windows without X11 or tmux")
+    if not terminal:
+        log.error('Argument `terminal` is not set, and could not determine a default')
 
-    argv    = [which(terminal)] + args + [command]
+    terminal_path = which(terminal)
+
+    if not terminal_path:
+        log.error('Could not find terminal: %s' % terminal)
+
+    argv = [terminal_path] + args + [command]
     log.debug("Launching a new terminal: %r" % argv)
 
     if os.fork() == 0:

@@ -1,3 +1,5 @@
+from ctypes import sizeof
+
 from .log import getLogger
 from .util.packing import pack
 from .util.packing import unpack
@@ -54,10 +56,27 @@ class MemLeak(object):
         # Map of address: byte for all bytes received
         self.cache = {}
 
-    def field(self, address, obj):
-        """call(address, field) => int or str
+    def struct(self, address, struct):
+        """struct(address, struct) => structure object
 
-        Leak an entire structure, or structure field.
+        Leak an entire structure.
+
+        Arguments:
+            address(int):  Addess of structure in memory
+            struct(class): A ctypes structure to be instantiated with leaked data
+
+        Return Value:
+            An instance of the provided struct class, with the leaked data decoded
+        """
+        size = sizeof(struct)
+        data = self.n(address, size)
+        obj = struct.from_buffer_copy(data)
+        return obj
+
+    def field(self, address, obj):
+        """field(address, field) => a structure field.
+
+        Leak a field from a structure.
 
         Arguments:
             address(int): Base address to calculate offsets from

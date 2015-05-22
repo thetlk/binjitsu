@@ -208,7 +208,7 @@ def sockaddr(host, port, network = 'ipv4'):
 
     if network == 'ipv4':
         sockaddr += host
-        sockaddr = sockaddr.ljust(16, '\x00')
+        # sockaddr = sockaddr.ljust(16, '\x00')
     else:
         sockaddr += p32(0)
         sockaddr += host

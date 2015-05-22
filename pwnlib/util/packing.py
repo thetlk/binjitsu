@@ -539,7 +539,14 @@ def flat(*args, **kwargs):
 
     return _flat(args, preprocessor, make_packer(word_size))
 
-def fit(pieces, **kwargs):
+    filler       = kwargs.pop('filler', cyclic.de_bruijn())
+    length       = kwargs.pop('length', None)
+    preprocessor = kwargs.pop('preprocessor', lambda x: None)
+
+
+@LocalContext
+def fit(pieces, filler=None, length=None, preprocessor=lambda x: None,
+        sign = None):
     """fit(pieces, filler = de_bruijn(), length = None, preprocessor = None,
            word_size = None, endianness = None, sign = None) -> str
 
@@ -568,9 +575,6 @@ def fit(pieces, **kwargs):
       preprocessor (function): Gets called on every element to optionally
          transform the element before flattening. If :const:`None` is
          returned, then the original value is uded.
-      word_size (int): Word size of the converted integer.
-      endianness (str): Endianness of the converted integer ("little"/"big").
-      sign (str): Signedness of the converted integer (False/True)
 
     Examples:
       >>> fit({12: 0x41414141,
@@ -589,17 +593,10 @@ def fit(pieces, **kwargs):
     # HACK: To avoid circular imports we need to delay the import of `cyclic`
     from . import cyclic
 
-    filler       = kwargs.pop('filler', cyclic.de_bruijn())
-    length       = kwargs.pop('length', None)
-    preprocessor = kwargs.pop('preprocessor', lambda x: None)
-    word_size    = kwargs.pop('word_size', None)
-    endianness   = kwargs.pop('endianness', None)
-    sign         = kwargs.pop('sign', None)
+    if filler is None:
+        filler = cyclic.de_bruijn()
 
-    if kwargs != {}:
-        raise TypeError("fit() does not support argument %r" % kwargs.popitem()[0])
-
-    packer = make_packer(word_size, endianness, sign)
+    packer = make_packer(context.word_size, sign)
     filler = iters.cycle(filler)
     out = ''
 

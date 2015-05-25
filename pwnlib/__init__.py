@@ -11,6 +11,7 @@ __all__ = [
     'commandline',
     'constants',
     'context',
+    'defcon',
     'dynelf',
     'elf',
     'exception',

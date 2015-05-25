@@ -17,6 +17,7 @@ from pwnlib import *
 from pwnlib.asm import *
 from pwnlib.context import Thread
 from pwnlib.context import context
+from pwnlib.defcon import *
 from pwnlib.dynelf import DynELF
 from pwnlib.elf import ELF
 from pwnlib.elf import load

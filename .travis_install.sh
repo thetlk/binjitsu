@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -x
+
 local_deb_extract()
 {
     wget $1
@@ -58,7 +60,7 @@ if [[ "$USER" == "travis" ]]; then
     setup_travis
 elif [[ "$USER" == "shippable" ]]; then
     sudo apt-get install ssh
-    sudo service ssh restart
+    sudo service ssh start
     setup_travis
 elif [[ "$(uname)" == "Darwin" ]]; then
     setup_osx

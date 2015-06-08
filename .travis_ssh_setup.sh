@@ -48,7 +48,7 @@ EOF
 cat >> ~/.ssh/config <<EOF
 
 Host example.pwnme
-    User travis
+    User $U
     HostName 127.0.0.1
     IdentityFile ~/.ssh/$U
 EOF

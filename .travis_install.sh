@@ -60,7 +60,7 @@ if [[ "$USER" == "travis" ]]; then
     setup_travis
 elif [[ "$USER" == "shippable" ]]; then
     sudo apt-get install ssh
-    sudo service ssh start
+    sudo ssh -f /etc/ssh/sshd_config &
     setup_travis
 elif [[ "$(uname)" == "Darwin" ]]; then
     setup_osx
@@ -70,3 +70,4 @@ fi
 
 service ssh status
 ps auxf
+sudo cat /etc/ssh/sshd_config

@@ -53,6 +53,6 @@ Host example.pwnme
     IdentityFile ~/.ssh/$U
 EOF
 
-ls -laR ~/.ssh
-ssh-keyscan -vvvvvvvv -t rsa example.pwnme >>~/.ssh/known_hosts
+chmod 700 ~/.ssh
+ssh-keyscan -vvv -t rsa example.pwnme >>~/.ssh/known_hosts
 ssh -o "StrictHostKeyChecking no" -vvvv travis@example.pwnme id

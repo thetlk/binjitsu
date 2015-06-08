@@ -42,11 +42,10 @@ setup_travis()
 
 setup_linux()
 {
-    sudo apt-get install -y software-properties-common openssh-server ssh
+    sudo apt-get install -y software-properties-common openssh-server
     sudo apt-add-repository --yes ppa:pwntools/binutils
     sudo apt-get update
     sudo apt-get install binutils-arm-linux-gnu binutils-mips-linux-gnu binutils-powerpc-linux-gnu
-    sudo service ssh restart
 }
 
 setup_osx()
@@ -68,6 +67,4 @@ elif [[ "$(uname)" == "Linux" ]]; then
     setup_linux
 fi
 
-service ssh status
-ps auxf
-sudo cat /etc/ssh/sshd_config
+dpkg -l

@@ -53,7 +53,4 @@ Host example.pwnme
     IdentityFile ~/.ssh/$U
 EOF
 
-cat ~/.ssh/config
-chmod 700 ~/.ssh
-ssh-keyscan -vvv -t rsa 127.0.0.1,example.pwnme >>~/.ssh/known_hosts
 ssh -o "StrictHostKeyChecking no" -vvvv travis@example.pwnme id

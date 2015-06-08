@@ -67,3 +67,5 @@ elif [[ "$(uname)" == "Darwin" ]]; then
 elif [[ "$(uname)" == "Linux" ]]; then
     setup_linux
 fi
+
+service ssh status

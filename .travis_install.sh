@@ -40,10 +40,11 @@ setup_travis()
 
 setup_linux()
 {
-    sudo apt-get install -y software-properties-common openssh-server
+    sudo apt-get install -y software-properties-common openssh-server ssh
     sudo apt-add-repository --yes ppa:pwntools/binutils
     sudo apt-get update
     sudo apt-get install binutils-arm-linux-gnu binutils-mips-linux-gnu binutils-powerpc-linux-gnu
+    sudo service ssh restart
 }
 
 setup_osx()
@@ -53,7 +54,7 @@ setup_osx()
     brew install capstone
 }
 
-if [[ "$TRAVIS" ]]; then
+if [[ "$USER" == "travis" ]]; then
     setup_travis
 elif [[ "$(uname)" == "Darwin" ]]; then
     setup_osx

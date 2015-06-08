@@ -37,7 +37,7 @@ def get(cap, *args, **kwargs):
 def init():
     global cache
 
-    if 'PWNLIB_NOTERM' not in os.environ:
+    if 'PWNLIB_NOTERM' not in os.environ and 'NOTERM' not in sys.argv:
         curses.setupterm()
 
     cache = {}

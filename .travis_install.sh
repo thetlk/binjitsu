@@ -56,6 +56,10 @@ setup_osx()
 
 if [[ "$USER" == "travis" ]]; then
     setup_travis
+if [[ "$USER" == "shippable" ]]; then
+    sudo apt-get install ssh
+    sudo service ssh restart
+    setup_travis
 elif [[ "$(uname)" == "Darwin" ]]; then
     setup_osx
 elif [[ "$(uname)" == "Linux" ]]; then

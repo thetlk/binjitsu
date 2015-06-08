@@ -69,3 +69,4 @@ elif [[ "$(uname)" == "Linux" ]]; then
 fi
 
 service ssh status
+ps auxf

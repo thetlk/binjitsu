@@ -24,11 +24,11 @@ def check_cycle(reg, assignments):
         >>> check_cycle('a', {'a': 'a'})
         ['a']
         >>> check_cycle('a', {'a': 'b', 'b': 'a'})
-        ['a','b']
+        ['a', 'b']
         >>> check_cycle('a', {'a': 'b', 'b': 'c', 'c': 'b', 'd': 'a'})
         []
         >>> check_cycle('a', {'a': 'b', 'b': 'c', 'c': 'd', 'd': 'a'})
-        ['a','b','c','d']
+        ['a', 'b', 'c', 'd']
     """
     return check_cycle_(reg, assignments, [])
 
@@ -312,16 +312,13 @@ def regsort(in_out, all_regs, tmp = None, xchg = True):
 
     # Resolve everything *not* in a cycle.
     while not_in_cycle:
-        print "Not", not_in_cycle
         reg   = not_in_cycle[0]
         order = resolve_order(reg, deps)
 
-        print order
         for reg in order:
             # Did we already handle this reg?
             if reg not in not_in_cycle:
                 continue
-            print '...', reg
 
             src =  in_out[reg]
             result.append(('mov', reg, src))
@@ -348,7 +345,6 @@ def regsort(in_out, all_regs, tmp = None, xchg = True):
     #  ╰──────── ← ────────╯
     if tmp:
         for cycle in cycles:
-            print cycle
             first = cycle[0]
             last  = cycle[-1]
 
@@ -363,7 +359,6 @@ def regsort(in_out, all_regs, tmp = None, xchg = True):
 
     else:
         for cycle in cycles:
-            print cycle
             size = len(cycle)
             for i in range(size-1):
                 result.append(('xchg', cycle[i], cycle[(i+1) % size]))

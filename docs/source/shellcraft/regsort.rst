@@ -1,5 +1,3 @@
-.. testsetup:: *
-
 :mod:`pwnlib.regsort` --- Register sorting
 ===========================================================
 

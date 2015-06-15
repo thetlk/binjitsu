@@ -210,7 +210,7 @@ def regsort(in_out, all_regs, tmp = None, xchg = True):
          ('mov', 'b', 'c'),
          ('mov', 'c', 'x'),
          ('mov', 'x', '1')]
-        >>> regsort({'a':'b','b':'c','c':'a','x':'1','y':'z','z':'c'}, R, xchg=0)
+        >>> regsort({'a':'b','b':'c','c':'a','x':'1','y':'z','z':'c'}, R, xchg=0) #doctest: +NORMALIZE_WHITESPACE
         [('mov', 'y', 'z'),
          ('mov', 'z', 'c'),
          ('mov', 'x', 'a'),

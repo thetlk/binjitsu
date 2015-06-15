@@ -165,44 +165,44 @@ def regsort(in_out, all_regs, tmp = None, xchg = True):
 
     Example:
 
-        >>> all_regs = ['a', 'b', 'c', 'd', 'x', 'y', 'z']
+        >>> R = ['a', 'b', 'c', 'd', 'x', 'y', 'z']
 
         If order doesn't matter for any subsequence, alphabetic
         order is used.
 
-        >>> regsort({'a': 1, 'b': 2}, all_regs)
+        >>> regsort({'a': 1, 'b': 2}, R)
         [('a', 1), ('b', 2)]
-        >>> regsort({'a': 'b', 'b': 'a'}, all_regs)
+        >>> regsort({'a': 'b', 'b': 'a'}, R)
         [('xchg', 'a', 'b')]
-        >>> regsort({'a': 'b', 'b': 'a'}, all_regs, tmp='X') #doctest: +NORMALIZE_WHITESPACE
+        >>> regsort({'a': 'b', 'b': 'a'}, R, tmp='X') #doctest: +NORMALIZE_WHITESPACE
         [('mov', 'X', 'a'),
          ('mov', 'a', 'b'),
          ('mov', 'b', 'X')]
-        >>> regsort({'a': 1, 'b': 'a'}) #doctest: +NORMALIZE_WHITESPACE
+        >>> regsort({'a': 1, 'b': 'a'}, R) #doctest: +NORMALIZE_WHITESPACE
         [('mov', 'b', 'a'),
          ('mov', 'a', 1)]
-        >>> regsort({'a': 'b', 'b': 'a', 'c': 3}, all_regs) #doctest: +NORMALIZE_WHITESPACE
+        >>> regsort({'a': 'b', 'b': 'a', 'c': 3}, R) #doctest: +NORMALIZE_WHITESPACE
         [('mov', 'c', 3),
          ('xchg', 'a', 'b')]
-        >>> regsort({'a': 'b', 'b': 'a', 'c': 'b'}, all_regs) #doctest: +NORMALIZE_WHITESPACE
+        >>> regsort({'a': 'b', 'b': 'a', 'c': 'b'}, R) #doctest: +NORMALIZE_WHITESPACE
         [('mov', 'c', 'b'),
          ('xchg', 'a', 'b')]
-        >>> regsort({'a':'b', 'b':'a', 'x':'b'}, all_regs, tmp='y', xchg=False) #doctest: +NORMALIZE_WHITESPACE
+        >>> regsort({'a':'b', 'b':'a', 'x':'b'}, R, tmp='y', xchg=False) #doctest: +NORMALIZE_WHITESPACE
         [('mov', 'x', 'b'),
          ('mov', 'y', 'a'),
          ('mov', 'a', 'b'),
          ('mov', 'b', 'y')]
-        >>> regsort({'a':'b', 'b':'a', 'x':'b'}, all_regs, tmp='x', xchg=False) #doctest: +ELLIPSIS
+        >>> regsort({'a':'b', 'b':'a', 'x':'b'}, R, tmp='x', xchg=False) #doctest: +ELLIPSIS
         Traceback (most recent call last):
         ...
         PwnlibException: Cannot break dependency cycles ...
-        >>> regsort({'a':'b','b':'c','c':'a','x':'1','y':'z','z':'c'}, all_regs) #doctest: +NORMALIZE_WHITESPACE
+        >>> regsort({'a':'b','b':'c','c':'a','x':'1','y':'z','z':'c'}, R) #doctest: +NORMALIZE_WHITESPACE
         [('mov', 'x', '1'),
          ('mov', 'y', 'z'),
          ('mov', 'z', 'c'),
          ('xchg', 'a', 'b'),
          ('xchg', 'b', 'c')]
-        >>> regsort({'a':'b','b':'c','c':'a','x':'1','y':'z','z':'c'}, all_regs, tmp='x') #doctest: +NORMALIZE_WHITESPACE
+        >>> regsort({'a':'b','b':'c','c':'a','x':'1','y':'z','z':'c'}, R, tmp='x') #doctest: +NORMALIZE_WHITESPACE
         [('mov', 'y', 'z'),
          ('mov', 'z', 'c'),
          ('mov', 'x', 'a'),
@@ -210,7 +210,7 @@ def regsort(in_out, all_regs, tmp = None, xchg = True):
          ('mov', 'b', 'c'),
          ('mov', 'c', 'x'),
          ('mov', 'x', '1')]
-        >>> regsort({'a':'b','b':'c','c':'a','x':'1','y':'z','z':'c'}, all_regs, xchg=0)
+        >>> regsort({'a':'b','b':'c','c':'a','x':'1','y':'z','z':'c'}, R, xchg=0)
         [('mov', 'y', 'z'),
          ('mov', 'z', 'c'),
          ('mov', 'x', 'a'),

@@ -1,3 +1,7 @@
+.. testsetup:: *
+
+    from pwnlib.regsort import *
+
 :mod:`pwnlib.regsort` --- Register sorting
 ===========================================================
 

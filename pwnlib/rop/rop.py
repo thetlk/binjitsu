@@ -41,9 +41,9 @@ standard Linux ABIs.
     0x0008:              0x2
     0x000c:       0xdeadbeef read(4, 5, 6)
     0x0010:           'eaaa' <pad>
-    0x0014:              0x1 arg0
-    0x0018:              0x2 arg1
-    0x001c:              0x3 arg2
+    0x0014:              0x4 arg0
+    0x0018:              0x5 arg1
+    0x001c:              0x6 arg2
 
 You can also use a shorthand to invoke calls.
 The stack is automatically adjusted for the next frame
@@ -133,6 +133,7 @@ Let's try it out!
     >>> p.send(raw_rop)
     >>> print p.recvall()
     The flag
+    >>> p.wait_for_close()
     >>> p.poll()
     0
 

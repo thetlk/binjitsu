@@ -310,7 +310,7 @@ class ROP(object):
        str(rop)
        # '\xfc\x82\x04\x08\xef\xbe\xad\xde\x00\x00\x00\x00\xa8\x96\x04\x08'
 
-    >>> context.arch = "i386"
+    >>> context.clear(arch = "i386", kernel = 'amd64')
     >>> write('/tmp/rop_elf_x86', make_elf(asm('int 0x80; ret; add esp, 0x10; ret; pop eax; ret')))
     >>> e = ELF('/tmp/rop_elf_x86')
     >>> e.symbols['funcname'] = e.address + 0x1234
@@ -318,79 +318,77 @@ class ROP(object):
     >>> r.funcname(1, 2)
     >>> r.funcname(3)
     >>> r.execve(4, 5, 6)
-    >>> x=r.build()
-    >>> print x.dump()
     >>> print r.dump()
-    0x0000:        0x8049288 (funcname)
-    0x0004:        0x8048057 (add esp, 0x10; ret)
-    0x0008:              0x1
-    0x000c:              0x2
-    0x0010:           '$$$$'
-    0x0014:           '$$$$'
-    0x0018:        0x8049288 (funcname)
-    0x001c:        0x804805b (pop eax; ret)
-    0x0020:              0x3
-    0x0024:        0x804805b (pop eax; ret)
+    0x0000:       0x10001234 funcname(1, 2)
+    0x0004:       0x10000003 <adjust: add esp, 0x10; ret>
+    0x0008:              0x1 arg0
+    0x000c:              0x2 arg1
+    0x0010:           'eaaa' <pad>
+    0x0014:           'faaa' <pad>
+    0x0018:       0x10001234 funcname(3)
+    0x001c:       0x10000007 <adjust: pop eax; ret>
+    0x0020:              0x3 arg0
+    0x0024:       0x10000007 pop eax; ret
     0x0028:             0x77
-    0x002c:        0x8048054 (int 0x80)
-    0x0030:              0x0 (gs)
-    0x0034:              0x0 (fs)
-    0x0038:              0x0 (es)
-    0x003c:              0x0 (ds)
-    0x0040:              0x0 (edi)
-    0x0044:              0x0 (esi)
-    0x0048:              0x0 (ebp)
-    0x004c:              0x0 (esp)
-    0x0050:              0x4 (ebx)
-    0x0054:              0x6 (edx)
-    0x0058:              0x5 (ecx)
-    0x005c:              0xb (eax)
-    0x0060:              0x0 (trapno)
-    0x0064:              0x0 (err)
-    0x0068:        0x8048054 (eip)
-    0x006c:             0x73 (cs)
-    0x0070:              0x0 (eflags)
-    0x0074:              0x0 (esp_at_signal)
-    0x0078:             0x7b (ss)
-    0x007c:              0x0 (fpstate)
+    0x002c:       0x10000000 int 0x80
+    0x0030:              0x0 gs
+    0x0034:              0x0 fs
+    0x0038:              0x0 es
+    0x003c:              0x0 ds
+    0x0040:              0x0 edi
+    0x0044:              0x0 esi
+    0x0048:              0x0 ebp
+    0x004c:             0x80 esp
+    0x0050:              0x4 ebx
+    0x0054:              0x6 edx
+    0x0058:              0x5 ecx
+    0x005c:              0xb eax
+    0x0060:              0x0 trapno
+    0x0064:              0x0 err
+    0x0068:       0x10000000 int 0x80
+    0x006c:             0x23 cs
+    0x0070:              0x0 eflags
+    0x0074:              0x0 esp_at_signal
+    0x0078:             0x2b ss
+    0x007c:              0x0 fpstate
 
     >>> r = ROP(e, 0x8048000)
     >>> r.funcname(1, 2)
     >>> r.funcname(3)
     >>> r.execve(4, 5, 6)
     >>> print r.dump()
-    0x8048000:        0x8049288 (funcname)
-    0x8048004:        0x8048057 (add esp, 0x10; ret)
-    0x8048008:              0x1
-    0x804800c:              0x2
-    0x8048010:           '$$$$'
-    0x8048014:           '$$$$'
-    0x8048018:        0x8049288 (funcname)
-    0x804801c:        0x804805b (pop eax; ret)
-    0x8048020:              0x3
-    0x8048024:        0x804805b (pop eax; ret)
+    0x8048000:       0x10001234 funcname(1, 2)
+    0x8048004:       0x10000003 <adjust: add esp, 0x10; ret>
+    0x8048008:              0x1 arg0
+    0x804800c:              0x2 arg1
+    0x8048010:           'eaaa' <pad>
+    0x8048014:           'faaa' <pad>
+    0x8048018:       0x10001234 funcname(3)
+    0x804801c:       0x10000007 <adjust: pop eax; ret>
+    0x8048020:              0x3 arg0
+    0x8048024:       0x10000007 pop eax; ret
     0x8048028:             0x77
-    0x804802c:        0x8048054 (int 0x80)
-    0x8048030:              0x0 (gs)
-    0x8048034:              0x0 (fs)
-    0x8048038:              0x0 (es)
-    0x804803c:              0x0 (ds)
-    0x8048040:              0x0 (edi)
-    0x8048044:              0x0 (esi)
-    0x8048048:              0x0 (ebp)
-    0x804804c:        0x8048080 (esp)
-    0x8048050:              0x4 (ebx)
-    0x8048054:              0x6 (edx)
-    0x8048058:              0x5 (ecx)
-    0x804805c:              0xb (eax)
-    0x8048060:              0x0 (trapno)
-    0x8048064:              0x0 (err)
-    0x8048068:        0x8048054 (eip)
-    0x804806c:             0x73 (cs)
-    0x8048070:              0x0 (eflags)
-    0x8048074:              0x0 (esp_at_signal)
-    0x8048078:             0x7b (ss)
-    0x804807c:              0x0 (fpstate)
+    0x804802c:       0x10000000 int 0x80
+    0x8048030:              0x0 gs
+    0x8048034:              0x0 fs
+    0x8048038:              0x0 es
+    0x804803c:              0x0 ds
+    0x8048040:              0x0 edi
+    0x8048044:              0x0 esi
+    0x8048048:              0x0 ebp
+    0x804804c:        0x8048080 esp
+    0x8048050:              0x4 ebx
+    0x8048054:              0x6 edx
+    0x8048058:              0x5 ecx
+    0x804805c:              0xb eax
+    0x8048060:              0x0 trapno
+    0x8048064:              0x0 err
+    0x8048068:       0x10000000 int 0x80
+    0x804806c:             0x23 cs
+    0x8048070:              0x0 eflags
+    0x8048074:              0x0 esp_at_signal
+    0x8048078:             0x2b ss
+    0x804807c:              0x0 fpstate
     """
     #: List of individual ROP gadgets, ROP calls, SROP frames, etc.
     #: This is intended to be the highest-level abstraction that we can muster.
@@ -565,6 +563,9 @@ class ROP(object):
 
             elif isinstance(slot, srop.SigreturnFrame):
                 stack.describe("Sigreturn Frame")
+
+                if slot.sp in (0, None):
+                    slot.sp = stack.next + len(slot)
 
                 for register in slot.registers:
                     value       = slot[register]

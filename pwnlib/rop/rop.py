@@ -39,7 +39,7 @@ standard Linux ABIs.
     0x0000:              0x0
     0x0004:       0x64636261
     0x0008:              0x2
-    0x000c:       0xdeadbeef read(1, 2, 3)
+    0x000c:       0xdeadbeef read(4, 5, 6)
     0x0010:           'eaaa' <pad>
     0x0014:              0x1 arg0
     0x0018:              0x2 arg1
@@ -551,7 +551,7 @@ class ROP(object):
             elif isinstance(slot, srop.SigreturnFrame):
                 stack.describe("Sigreturn Frame")
 
-                if slot.sp in (0, None):
+                if slot.sp in (0, None) and self.base:
                     slot.sp = stack.next + len(slot)
 
                 for register in slot.registers:

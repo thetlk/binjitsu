@@ -9,5 +9,5 @@
 :mod:`pwnlib.rop` --- Return Oriented Programming
 =================================================
 
-.. automodule:: pwnlib.rop
+.. automodule:: pwnlib.rop.rop
    :members:

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""
 Return Oriented Programming
 
@@ -111,34 +110,22 @@ Finally, let's build our ROP stack
 
     >>> rop = ROP(binary)
     >>> rop.write(c.STDOUT_FILENO, binary.symbols['flag'], 8)
-    >>> print rop.dump()
-    0x0000:       0x1000001b write(0, 134516852, 8)
-    0x0004:           'baaa' <pad>
-    0x0008:              0x0     arg0
-    0x000c:       0x10000036     flag
-    0x0010:              0x8     arg2
     >>> rop.exit()
     >>> print rop.dump()
-    0x0000:       0x1000001f write(0, 268435510, 8)
-    0x0004:       0x10000018     <adjust: add esp, 0x10; ret>
-    0x0008:              0x0     arg0
-    0x000c:       0x10000036     flag
-    0x0010:              0x8     arg2
-    0x0014:           'faaa'     <pad>
-    0x0018:       0x1000001f write(0, 268435510, 8)
-    0x001c:           'haaa'     <pad>
-    0x0020:              0x0     arg0
-    0x0024:       0x10000036     flag
-    0x0028:              0x8     arg2
+    0x0000:       0x1000001f write(STDOUT_FILENO, 268435507, 8)
+    0x0004:       0x1000001b <adjust: add esp, 0x10; ret>
+    0x0008:              0x1 arg0
+    0x000c:       0x10000033 flag
+    0x0010:              0x8 arg2
+    0x0014:           'faaa' <pad>
+    0x0018:       0x1000003c exit()
+    0x001c:           'haaa' <pad>
 
 The raw data from the ROP stack is available via `str`.
 
     >>> raw_rop = str(rop)
-    >>> print hexdump(raw_rop)
-    00000000  1f 00 00 10  18 00 00 10  00 00 00 00  36 00 00 10  │····│····│····│6···│
-    00000010  08 00 00 00  66 61 61 61  1f 00 00 10  68 61 61 61  │····│faaa│····│haaa│
-    00000020  00 00 00 00  36 00 00 10  08 00 00 00               │····│6···│····││
-    0000002c
+    >>> print enhex(raw_rop)
+    1f0000101b000010010000003300001008000000666161613c00001068616161
 
 Let's try it out!
 
@@ -1063,9 +1050,9 @@ class ROP(object):
             return self.search(move=count)
 
         if attr in ('int80', 'syscall', 'sysenter'):
-            mapping = {'int80': u'int 0x80',
-             u'syscall': u'syscall',
-             'sysenter': u'sysenter'}
+            mapping = {'int80': 'int 0x80',
+             'syscall': 'syscall',
+             'sysenter': 'sysenter'}
             for each in self.gadgets:
                 if self.gadgets[each]['insns'] == [mapping[attr]]:
                     return gadget(each, self.gadgets[each])

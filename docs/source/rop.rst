@@ -5,5 +5,10 @@
 :mod:`pwnlib.rop` --- Return Oriented Programming
 =================================================
 
-.. automodule:: pwnlib.rop.rop
-   :members:
+Submodules
+----------
+
+.. toctree::
+   :glob:
+
+   rop/*

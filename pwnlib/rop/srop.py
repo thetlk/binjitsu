@@ -225,7 +225,7 @@ class SigreturnFrame(dict):
         ---------
 
         >>> s = SigreturnFrame(arch='arm')
-        >>> unpack_many(str(s))
+        >>> unpack_many(str(s)) # doctest: +NORMALIZE_WHITESPACE
         [0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         1073741840, 0, 0, 0, 0]
         >>> s.r0 = 125
@@ -242,7 +242,7 @@ class SigreturnFrame(dict):
 
         >>> s = SigreturnFrame(arch='mips')
         >>> context.endian = "big"
-        >>> unpack_many(str(s))
+        >>> unpack_many(str(s)) # doctest: +NORMALIZE_WHITESPACE
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -263,7 +263,7 @@ class SigreturnFrame(dict):
 
         >>> s = SigreturnFrame(arch='mips')
         >>> context.endian = "little"
-        >>> unpack_many(str(s))
+        >>> unpack_many(str(s)) # doctest: +NORMALIZE_WHITESPACE
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

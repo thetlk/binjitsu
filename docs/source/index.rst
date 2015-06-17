@@ -36,6 +36,7 @@ Each of the ``binjitsu`` modules is documented here.
    dynelf
    elf
    exception
+   fmtstr
    gdb
    log
    memleak

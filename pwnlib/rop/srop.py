@@ -173,7 +173,8 @@ class SigreturnFrame(dict):
 
     Examples:
 
-        Crafting a SigreturnFrame that calls mprotect on amd64
+        amd64
+        ----------
 
         >>> context.clear(arch='amd64')
         >>> s = SigreturnFrame()
@@ -190,10 +191,10 @@ class SigreturnFrame(dict):
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6295552, 4096, 0, 0, 7,
         10, 0, 0, 0, 0, 51, 0, 0, 0, 0, 0, 0, 0]
 
-        Crafting a SigreturnFrame that calls mprotect on i386
+        i386 native
+        --------------
 
-        >>> context.clear(arch='i386')
-        >>> s = SigreturnFrame(kernel='i386')
+        >>> s = SigreturnFrame(arch='i386', kernel='i386')
         >>> unpack_many(str(s))
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 115, 0, 0, 123, 0]
         >>> assert len(s) == 80
@@ -205,7 +206,23 @@ class SigreturnFrame(dict):
         >>> unpack_many(str(s)) # doctest: +NORMALIZE_WHITESPACE
         [0, 0, 0, 0, 0, 0, 0, 0, 6295552, 7, 4096, 125, 0, 0, 0, 115, 0, 0, 123, 0]
 
-        Crafting a SigreturnFrame that calls mprotect on ARM
+        i386 on amd64
+        ----------------
+        >>> s = SigreturnFrame(arch='i386', kernel='amd64')
+        >>> unpack_many(str(s))
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 35, 0, 0, 43, 0]
+        >>> assert len(s) == 80
+        >>> s.eax = 125
+        >>> s.ebx = 0x00601000
+        >>> s.ecx = 0x1000
+        >>> s.edx = 0x7
+        >>> assert len(str(s)) == 80
+        >>> unpack_many(str(s)) # doctest: +NORMALIZE_WHITESPACE
+        [0, 0, 0, 0, 0, 0, 0, 0, 6295552, 7, 4096, 125, 0, 0, 0, 35, 0, 0, 43, 0]
+
+
+        arm
+        ---------
 
         >>> s = SigreturnFrame(arch='arm')
         >>> unpack_many(str(s))
@@ -220,7 +237,8 @@ class SigreturnFrame(dict):
         [0, 0, 0, 0, 0, 6, 0, 0, 125, 6295552, 4096, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 1073741840, 0, 0, 0, 0]
 
-        Crafting a SigreturnFrame that calls mprotect on MIPS
+        mips
+        ---------
 
         >>> s = SigreturnFrame(arch='mips')
         >>> context.endian = "big"
@@ -240,7 +258,8 @@ class SigreturnFrame(dict):
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-        Crafting a SigreturnFrame that calls mprotect on MIPSel
+        mipsel
+        ----------
 
         >>> s = SigreturnFrame(arch='mips')
         >>> context.endian = "little"

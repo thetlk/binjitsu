@@ -131,11 +131,8 @@ Let's try it out!
 
     >>> p = process(binary.path)
     >>> p.send(raw_rop)
-    >>> print p.recvall()
+    >>> print p.recvall(timeout=1)
     The flag
-    >>> p.wait_for_close()
-    >>> p.poll()
-    0
 
 ROP + Sigreturn
 -----------------------
@@ -197,7 +194,7 @@ Let's try it out!
     >>> p = process(binary.path)
     >>> p.send(str(rop))
     >>> p.sendline('echo hello; exit')
-    >>> p.recvline()
+    >>> p.recvline(timeout=1)
     'hello\n'
 """
 import collections

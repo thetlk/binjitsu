@@ -137,26 +137,8 @@ class FmtStr(object):
         return leak
 
     def execute_writes(self):
-        addrs = []
-        bytes = []
-
-        #convert every write into single-byte writes
-        for addr, data in self.writes:
-            data = flat(data)
-            for off, b in enumerate(data):
-                addrs.append(addr+off)
-                bytes.append(u8(b))
-
-        fmtstr = randoms(self.padlen) + flat(addrs)
-        n = self.numbwritten + len(fmtstr)
-
-        for i, b in enumerate(bytes):
-            b -= (n % 256)
-            if b <= 0:
-                b += 256
-            fmtstr += "%%%dc%%%d$hhn" % (b, self.offset + i)
-            n += b
-
+        fmtstr = randoms(self.padlen)
+        fmtstr += make_payload(self.offset, self.writes, numbwritten=self.padlen, nformater=4)
         self.execute_fmt(fmtstr)
         self.writes = []
 

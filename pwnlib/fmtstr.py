@@ -122,8 +122,8 @@ def fmtstr_payload(offset, writes, numbwritten=0, write_size='byte'):
                 to_add = (current | (mask+1)) - (numbwritten & mask)
 
             if to_add != 0:
-                payload += "%%%dc" % to_add
-            payload += "%%%d$%sn" % (offset + fmtCount, formatz)
+                payload += "%{}c".format(to_add)
+            payload += "%{}${}n".format(offset + fmtCount, formatz)
 
             numbwritten += to_add
             what >>= decalage
@@ -176,7 +176,7 @@ class FmtStr(object):
         self.leaker = MemLeak(self._leaker)
 
     def leak_stack(self, offset, prefix=""):
-        leak = self.execute_fmt(prefix+"START%%%d$pEND" % offset)
+        leak = self.execute_fmt(prefix+"START%{}$pEND".format(offset))
         try:
             leak = re.findall(r"START(.*)END", leak, re.MULTILINE | re.DOTALL)[0]
             leak = int(leak, 16)

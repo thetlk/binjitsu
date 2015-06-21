@@ -55,7 +55,7 @@ from pwnlib.util.packing import *
 log = getLogger(__name__)
 
 def fmtstr_payload(offset, writes, numbwritten=0, write_size='byte'):
-    """fmtstr_payload(offset, writes, numbwritten=0, write_size='byte') -> str
+    r"""fmtstr_payload(offset, writes, numbwritten=0, write_size='byte') -> str
 
     Makes payload with given parameter.
     It can generate payload for 32 or 64 bits architectures. 
@@ -76,17 +76,17 @@ def fmtstr_payload(offset, writes, numbwritten=0, write_size='byte'):
         ...     print repr(fmtstr_payload(1, [(0x0, 0x1337babe)], write_size='short'))
         ...     print repr(fmtstr_payload(1, [(0x0, 0x1337babe)], write_size='byte'))
         ... 
-        '\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x00\\x00\\x00\\x00%322419374c%1$n%3972547906c%2$n'
-        '\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x06\\x00\\x00\\x00\\x00\\x00\\x00\\x00%47774c%1$hn%22649c%2$hn%60617c%3$hn%4$hn'
-        '\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x03\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x04\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x05\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x06\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x07\\x00\\x00\\x00\\x00\\x00\\x00\\x00%126c%1$hhn%252c%2$hhn%125c%3$hhn%220c%4$hhn%237c%5$hhn%6$hhn%7$hhn%8$hhn'
+        '\x00\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00%322419374c%1$n%3972547906c%2$n'
+        '\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x00\x00\x00\x00%47774c%1$hn%22649c%2$hn%60617c%3$hn%4$hn'
+        '\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x00\x05\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x00\x00\x00\x00\x07\x00\x00\x00\x00\x00\x00\x00%126c%1$hhn%252c%2$hhn%125c%3$hhn%220c%4$hhn%237c%5$hhn%6$hhn%7$hhn%8$hhn'
         >>> with context.local(arch = 'i386'):
         ...     print repr(fmtstr_payload(1, [(0x0, 0x1337babe)], write_size='int'))
         ...     print repr(fmtstr_payload(1, [(0x0, 0x1337babe)], write_size='short'))
         ...     print repr(fmtstr_payload(1, [(0x0, 0x1337babe)], write_size='byte'))
         ... 
-        '\\x00\\x00\\x00\\x00%322419386c%1$n'
-        '\\x00\\x00\\x00\\x00\\x02\\x00\\x00\\x00%47798c%1$hn%22649c%2$hn'
-        '\\x00\\x00\\x00\\x00\\x01\\x00\\x00\\x00\\x02\\x00\\x00\\x00\\x03\\x00\\x00\\x00%174c%1$hhn%252c%2$hhn%125c%3$hhn%220c%4$hhn'
+        '\x00\x00\x00\x00%322419386c%1$n'
+        '\x00\x00\x00\x00\x02\x00\x00\x00%47798c%1$hn%22649c%2$hn'
+        '\x00\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00%174c%1$hhn%252c%2$hhn%125c%3$hhn%220c%4$hhn'
 
     """
 

@@ -228,7 +228,7 @@ class FmtStr(object):
         self.writes = {}
 
     def write(self, addr, data):
-        """write(addr, data) -> None
+        r"""write(addr, data) -> None
 
         In order to tell : I want to write ``data`` at ``addr``.
 
@@ -238,6 +238,16 @@ class FmtStr(object):
 
         Returns:
             None
+
+        Examples:
+
+            >>> def send_fmt_payload(payload):
+            ...     print repr(payload)
+            ...
+            >>> f = FmtStr(send_fmt_payload, offset=5)
+            >>> f.write(0x08040506, 0x1337babe)
+            >>> f.execute_writes()
+            '\x06\x05\x04\x08\x07\x05\x04\x08\x08\x05\x04\x08\t\x05\x04\x08%174c%5$hhn%252c%6$hhn%125c%7$hhn%220c%8$hhn'
 
         """
         self.writes[addr] = data

@@ -1,7 +1,7 @@
 .. testsetup:: *
 
-	from pwnlib.context import context
-	from pwnlib.fmtstr import *
+	from pwn import *
+	import tempfile
 
 :mod:`pwnlib.fmtstr` --- Format string bug exploitation tools
 =============================================================

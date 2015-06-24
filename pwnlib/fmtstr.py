@@ -16,7 +16,7 @@ Examples:
     ...     "{",
     ...     "       char buff[1024];",
     ...     "       void *ptr = NULL;",
-    ...     "   int *my_var = TARGET;"
+    ...     "       int *my_var = TARGET;",
     ...     "       ptr = mmap(MEMORY_ADDRESS, MEMORY_SIZE, PROT_READ|PROT_WRITE, MAP_FIXED|MAP_ANONYMOUS|MAP_PRIVATE, 0, 0);",
     ...     "       if(ptr != MEMORY_ADDRESS)",
     ...     "       {",
@@ -57,7 +57,6 @@ Example - Payload generation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ::
-    # TODO full example with gcc cf https://github.com/binjitsu/binjitsu/pull/41#discussion_r32895981
     # we want to do 3 writes
     writes = {0x08041337:   0xbfffffff,
               0x08041337+4: 0x1337babe,
